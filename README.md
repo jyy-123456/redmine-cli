@@ -71,6 +71,9 @@ redmine issues update 12345 --status 2 --comment "开始处理"
 # 记录工时
 redmine time log -i 12345 -h 2.5 -c "完成开发"
 
+# 修改工时（只改传入的字段）
+redmine time update 446364 -h 3 -c "修正后的工作内容"
+
 # 查看项目列表
 redmine projects list
 
@@ -108,6 +111,7 @@ redmine users me                       当前用户信息
 
 redmine time list                      查看工时记录
 redmine time log                       记录工时
+redmine time update ENTRY_ID           修改工时（时长/内容/日期/活动类型）
 redmine time activities                查看活动类型
 ```
 

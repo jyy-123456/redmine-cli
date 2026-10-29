@@ -166,6 +166,69 @@ def log_time(
         console.print(Panel("\n".join(lines), title="Time Entry Logged", border_style="green"))
 
 
+@time_app.command("update")
+def update_time_entry(
+    entry_id: Annotated[int, typer.Argument(help="Time entry ID")],
+    hours: Annotated[float | None, typer.Option("--hours", "-h", help="Hours spent")] = None,
+    activity: Annotated[int | None, typer.Option("--activity", "-a", help="Activity ID")] = None,
+    comment: Annotated[str | None, typer.Option("--comment", "-c", help="Comment")] = None,
+    spent_on: Annotated[str | None, typer.Option("--date", "-d", help="Date (YYYY-MM-DD)")] = None,
+    issue_id: Annotated[
+        int | None, typer.Option("--issue", "-i", help="Move the entry to another issue")
+    ] = None,
+    fmt: Annotated[str, typer.Option("--format", "-f", help="Output format")] = "table",
+) -> None:
+    """Update an existing time entry. Only the options you pass are changed."""
+    client = get_client()
+
+    data: dict[str, Any] = {}
+    if hours is not None:
+        if hours <= 0:
+            err_console.print("[red]Error:[/red] --hours must be greater than 0")
+            raise typer.Exit(1)
+        data["hours"] = hours
+    if activity is not None:
+        data["activity_id"] = activity
+    if comment is not None:
+        data["comments"] = comment
+    if spent_on is not None:
+        try:
+            data["spent_on"] = date.fromisoformat(spent_on).isoformat()
+        except ValueError as e:
+            err_console.print(f"[red]Error:[/red] Invalid --date '{spent_on}', expected YYYY-MM-DD")
+            raise typer.Exit(1) from e
+    if issue_id is not None:
+        data["issue_id"] = issue_id
+
+    if not data:
+        err_console.print(
+            "[red]Error:[/red] Nothing to update. Pass at least one of "
+            "--hours, --activity, --comment, --date, --issue"
+        )
+        raise typer.Exit(1)
+
+    try:
+        updated = client.update_time_entry(entry_id, data)
+    except Exception as e:
+        err_console.print(f"[red]Error updating time entry:[/red] {e}")
+        raise typer.Exit(1) from e
+
+    if fmt == "json":
+        print_json(updated)
+    else:
+        issue = updated.get("issue") or {}
+        issue_label = f"#{issue.get('id')}" if issue else "-"
+        lines = [
+            f"[bold]Entry:[/bold]    {updated.get('id', entry_id)}",
+            f"[bold]Issue:[/bold]    {issue_label}",
+            f"[bold]Hours:[/bold]    {updated.get('hours', hours)}",
+            f"[bold]Activity:[/bold] {(updated.get('activity') or {}).get('name', '')}",
+            f"[bold]Date:[/bold]     {updated.get('spent_on', spent_on or '')}",
+            f"[bold]Comment:[/bold]  {updated.get('comments', '') or '-'}",
+        ]
+        console.print(Panel("\n".join(lines), title="Time Entry Updated", border_style="green"))
+
+
 @time_app.command("activities")
 def list_activities(
     fmt: Annotated[str, typer.Option("--format", "-f", help="Output format")] = "table",

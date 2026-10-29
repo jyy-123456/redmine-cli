@@ -212,6 +212,18 @@ redmine time log -i ISSUE_ID -h 2.5 -c "Description of work"
 redmine time log -i ISSUE_ID -h 8 --activity 9 --date 2026-04-07
 ```
 
+### Update a time entry (fix hours / comment / date / activity)
+```bash
+redmine time list --period today --format json   # entry "id" is what you need
+redmine time update ENTRY_ID -h 3                # only the passed options change
+redmine time update ENTRY_ID -c "Corrected description"
+redmine time update ENTRY_ID -a 15 -d 2026-04-07
+redmine time update ENTRY_ID -i OTHER_ISSUE_ID   # move entry to another issue
+```
+
+`time update` patches only the options you give it; everything else keeps its current
+value. Passing no options is rejected, and `--hours` must be greater than 0.
+
 ### View time entries
 ```bash
 redmine time list --period this_week --format json

@@ -265,6 +265,20 @@ class RedmineClient:
         result = self.post("/time_entries.json", json_data={"time_entry": data})
         return result.get("time_entry", result)
 
+    def get_time_entry(self, entry_id: int) -> dict[str, Any]:
+        """Fetch a single time entry."""
+        data = self.get(f"/time_entries/{entry_id}.json")
+        return data.get("time_entry", data)
+
+    def update_time_entry(self, entry_id: int, data: dict[str, Any]) -> dict[str, Any]:
+        """Update a time entry and return the fresh record.
+
+        Redmine answers 204 No Content on a successful update, so the entry is
+        re-fetched to give callers something to display.
+        """
+        self.put(f"/time_entries/{entry_id}.json", {"time_entry": data})
+        return self.get_time_entry(entry_id)
+
     # --- Enumerations ---
 
     def list_trackers(self) -> list[dict[str, Any]]:
