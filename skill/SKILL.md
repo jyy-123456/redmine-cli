@@ -324,8 +324,9 @@ If a command fails:
 
 ## Tips
 
+- The `--all` flag fetches every page automatically on `my-issues`, `issues list`,
+  `time list` and `projects list`; without it only `--limit` items (default 25) come back
 - Use `--format json` when piping output to other tools or when the model needs to parse results
-- The `--all` flag on `issues list` fetches all pages automatically (use with caution on large datasets)
 - `--assignee me` automatically resolves to the current user's ID
 - Time entry `--period` shortcuts: today, yesterday, this_week, last_week, this_month
 - Config supports multiple profiles; use `--profile NAME` to select one

@@ -84,6 +84,7 @@ def list_time_entries(
         typer.Option("--period", help="Predefined period: today, yesterday, this_week, last_week, this_month"),
     ] = None,
     limit: Annotated[int, typer.Option("--limit", "-l", help="Results per page")] = 25,
+    fetch_all: Annotated[bool, typer.Option("--all", help="Fetch all pages")] = False,
     fmt: Annotated[str, typer.Option("--format", "-f", help="Output format")] = "table",
 ) -> None:
     """List time entries with filters."""
@@ -108,7 +109,7 @@ def list_time_entries(
         params["to"] = to_date
 
     try:
-        items, total = client.list_time_entries(limit=limit, **params)
+        items, total = client.list_time_entries(limit=limit, all_pages=fetch_all, **params)
     except Exception as e:
         err_console.print(f"[red]Error listing time entries:[/red] {e}")
         raise typer.Exit(1) from e

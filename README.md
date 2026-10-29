@@ -82,6 +82,9 @@ redmine users me
 
 # JSON 输出（适合脚本处理）
 redmine my-issues --format json
+
+# 拉取全部分页（默认每页 25 条，--all 会自动翻页）
+redmine my-issues --all
 ```
 
 ## 所有命令

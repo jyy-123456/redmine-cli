@@ -28,6 +28,7 @@ def list_projects(
         int,
         typer.Option("--limit", "-l", help="Maximum number of projects to return"),
     ] = 25,
+    fetch_all: Annotated[bool, typer.Option("--all", help="Fetch all pages")] = False,
     format: Annotated[
         str,
         typer.Option(
@@ -41,7 +42,9 @@ def list_projects(
     """List projects."""
     client = get_client()
     try:
-        items, total_count = client.list_projects(status=status, limit=limit)
+        items, total_count = client.list_projects(
+            status=status, limit=limit, all_pages=fetch_all
+        )
     except Exception as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e

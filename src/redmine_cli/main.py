@@ -53,6 +53,7 @@ def my_issues(
     project: Annotated[str | None, typer.Option("--project", "-p", help="Project identifier")] = None,
     fmt: Annotated[str, typer.Option("--format", "-f", help="Output format")] = "table",
     limit: Annotated[int, typer.Option("--limit", "-l", help="Results per page")] = 25,
+    fetch_all: Annotated[bool, typer.Option("--all", help="Fetch all pages")] = False,
 ) -> None:
     """Shortcut: list issues assigned to me."""
     client = get_client()
@@ -77,7 +78,7 @@ def my_issues(
         params["status_id"] = status
 
     try:
-        items, total = client.list_issues(limit=limit, **params)
+        items, total = client.list_issues(limit=limit, all_pages=fetch_all, **params)
     except Exception as e:
         err_console.print(f"[red]Error:[/red] {e}")
         raise typer.Exit(1) from e

@@ -141,13 +141,32 @@ class RedmineClient:
 
     # --- Issues ---
 
-    def list_issues(self, **filters: Any) -> tuple[list[dict[str, Any]], int]:
-        """List issues with optional filters."""
+    def list_issues(
+        self,
+        limit: int = 25,
+        offset: int = 0,
+        all_pages: bool = False,
+        **filters: Any,
+    ) -> tuple[list[dict[str, Any]], int]:
+        """List issues with optional filters.
+
+        Pagination arguments are kept separate from ``filters``. Merging them
+        into one dict used to make ``limit``/``offset``/``all_pages`` fall
+        through to ``**filters`` and be overwritten by ``get_paginated``'s
+        defaults, so ``--limit`` and ``--all`` silently did nothing.
+        """
         params: dict[str, Any] = {}
         for key, value in filters.items():
             if value is not None:
                 params[key] = value
-        return self.get_paginated("/issues.json", "issues", params=params)
+        return self.get_paginated(
+            "/issues.json",
+            "issues",
+            params=params,
+            limit=limit,
+            offset=offset,
+            all_pages=all_pages,
+        )
 
     def get_issue(self, issue_id: int, include: str = "") -> dict[str, Any]:
         """Get a single issue with optional related data."""
@@ -172,10 +191,23 @@ class RedmineClient:
 
     # --- Projects ---
 
-    def list_projects(self, **params: Any) -> tuple[list[dict[str, Any]], int]:
+    def list_projects(
+        self,
+        limit: int = 25,
+        offset: int = 0,
+        all_pages: bool = False,
+        **filters: Any,
+    ) -> tuple[list[dict[str, Any]], int]:
         """List projects."""
-        query: dict[str, Any] = {k: v for k, v in params.items() if v is not None}
-        return self.get_paginated("/projects.json", "projects", params=query)
+        query: dict[str, Any] = {k: v for k, v in filters.items() if v is not None}
+        return self.get_paginated(
+            "/projects.json",
+            "projects",
+            params=query,
+            limit=limit,
+            offset=offset,
+            all_pages=all_pages,
+        )
 
     def get_project(self, project_id: str | int) -> dict[str, Any]:
         """Get project details."""
@@ -183,12 +215,22 @@ class RedmineClient:
         return data.get("project", data)
 
     def get_project_memberships(
-        self, project_id: str | int, **params: Any
+        self,
+        project_id: str | int,
+        limit: int = 25,
+        offset: int = 0,
+        all_pages: bool = False,
+        **filters: Any,
     ) -> tuple[list[dict[str, Any]], int]:
         """List project memberships."""
-        query: dict[str, Any] = {k: v for k, v in params.items() if v is not None}
+        query: dict[str, Any] = {k: v for k, v in filters.items() if v is not None}
         return self.get_paginated(
-            f"/projects/{project_id}/memberships.json", "memberships", params=query
+            f"/projects/{project_id}/memberships.json",
+            "memberships",
+            params=query,
+            limit=limit,
+            offset=offset,
+            all_pages=all_pages,
         )
 
     # --- Users ---
@@ -200,10 +242,23 @@ class RedmineClient:
 
     # --- Time Entries ---
 
-    def list_time_entries(self, **params: Any) -> tuple[list[dict[str, Any]], int]:
+    def list_time_entries(
+        self,
+        limit: int = 25,
+        offset: int = 0,
+        all_pages: bool = False,
+        **params: Any,
+    ) -> tuple[list[dict[str, Any]], int]:
         """List time entries."""
         query: dict[str, Any] = {k: v for k, v in params.items() if v is not None}
-        return self.get_paginated("/time_entries.json", "time_entries", params=query)
+        return self.get_paginated(
+            "/time_entries.json",
+            "time_entries",
+            params=query,
+            limit=limit,
+            offset=offset,
+            all_pages=all_pages,
+        )
 
     def create_time_entry(self, data: dict[str, Any]) -> dict[str, Any]:
         """Create a time entry."""
